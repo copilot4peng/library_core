@@ -1,0 +1,13 @@
+{
+  "STORAGE_ROOT": "/data",
+  "MAX_FILE_SIZE": 524288000,
+  "JWT_SECRET": "change-this-secret-before-deploying-use-a-long-random-value",
+  "JWT_ALGORITHM": "HS256",
+  "JWT_EXPIRE_HOURS": 24,
+  "BACKEND_HOST": "0.0.0.0",
+  "BACKEND_PORT": 8000,
+  "FRONTEND_HOST": "0.0.0.0",
+  "FRONTEND_PORT": 8080,
+  "BACKEND_URL": "http://localhost:8000",
+  "LOG_LEVEL": "INFO"
+}
