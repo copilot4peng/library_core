@@ -14,6 +14,7 @@ Run:
 """
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sys
@@ -30,6 +31,7 @@ from backend.config import CONFIG  # noqa: E402
 logger = logging.getLogger("mybagHub.frontend")
 
 BACKEND_URL: str = CONFIG.get("BACKEND_URL", "http://localhost:8000")
+BACKEND_PORT: int = int(CONFIG.get("BACKEND_PORT", 8000))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -51,6 +53,29 @@ def _is_auth() -> bool:
 def _logout() -> None:
     app.storage.user.clear()
     ui.navigate.to("/login")
+
+
+def _open_download(project_name: str, version: str) -> None:
+    token = _token()
+    if not token:
+        ui.notify("Not authenticated", type="negative")
+        ui.navigate.to("/login")
+        return
+
+    ui.run_javascript(
+        f"""
+        const projectName = {json.dumps(project_name)};
+        const version = {json.dumps(version)};
+        const token = {json.dumps(token)};
+        const url = new URL(window.location.href);
+        url.protocol = window.location.protocol;
+        url.hostname = window.location.hostname;
+        url.port = {json.dumps(str(BACKEND_PORT))};
+        url.pathname = `/projects/${{encodeURIComponent(projectName)}}/versions/${{encodeURIComponent(version)}}/download`;
+        url.search = `token=${{encodeURIComponent(token)}}`;
+        window.open(url.toString(), "_blank");
+        """
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -459,11 +484,6 @@ async def project_detail_page(name: str) -> None:
                             uploaded = v["upload_at"][:19].replace("T", " ")
                             about = (v.get("about") or "").strip()
 
-                            dl_url = (
-                                f"{BACKEND_URL}/projects/{name}/versions/{ver_tag}"
-                                f"/download?token={_token()}"
-                            )
-
                             with ui.card().classes("w-full p-3"):
                                 with ui.row().classes(
                                     "w-full items-center justify-between"
@@ -479,8 +499,8 @@ async def project_detail_page(name: str) -> None:
 
                                     ui.button(
                                         "⬇ Download",
-                                        on_click=lambda u=dl_url: ui.run_javascript(
-                                            f'window.open("{u}", "_blank")'
+                                        on_click=lambda project_name=name, version=ver_tag: _open_download(
+                                            project_name, version
                                         ),
                                     ).classes("bg-green-600 text-white")
 
