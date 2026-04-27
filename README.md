@@ -2,6 +2,12 @@
 
 轻量级文件包管理与分发平台。前后端完全独立部署，用户在浏览器中动态选择要连接的后端节点。
 
+
+![](images/538cf2d4-a57d-48e4-b378-514e89d4335b.png)
+![](images/94adc132-34d5-498f-8730-5dedf6466a60.png)
+![](images/6d901af8-3d19-422a-84c1-47d4caae94d5.png)
+![](images/2c2e7697-f016-4d49-97cf-fdaae6e45640.png)
+
 ---
 
 ## 架构概述
@@ -35,14 +41,14 @@
 
 **技术栈**：
 
-| 模块 | 技术 |
-|------|------|
-| 后端 API | FastAPI + uvicorn |
-| 认证 | JWT (python-jose, HS256) + bcrypt 密码哈希 |
-| 文件存储 | 本地文件系统（无数据库） |
-| 文件锁 | portalocker（跨进程安全写入） |
-| 前端 UI | NiceGUI（Python 驱动的 Vue/Quasar 页面） |
-| 前端 HTTP | httpx（异步请求） |
+| 模块      | 技术                                       |
+| --------- | ------------------------------------------ |
+| 后端 API  | FastAPI + uvicorn                          |
+| 认证      | JWT (python-jose, HS256) + bcrypt 密码哈希 |
+| 文件存储  | 本地文件系统（无数据库）                   |
+| 文件锁    | portalocker（跨进程安全写入）              |
+| 前端 UI   | NiceGUI（Python 驱动的 Vue/Quasar 页面）   |
+| 前端 HTTP | httpx（异步请求）                          |
 
 ---
 
@@ -143,7 +149,7 @@ docker run -d \
   mybagbub-frontend
 ```
 
-> **说明**：前后端容器完全独立，无需 `--link` 或同一 Docker network。  
+> **说明**：前后端容器完全独立，无需 `--link` 或同一 Docker network。
 > 前端在运行时由用户在浏览器中指定后端地址。
 
 ### 4. 访问
@@ -157,19 +163,19 @@ docker run -d \
 
 ## 后端 API 端点一览
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/health` | 服务健康检查（无需认证） |
-| POST | `/auth/register` | 注册 |
-| POST | `/auth/login` | 登录，返回 JWT |
-| GET | `/projects` | 获取项目列表 |
-| POST | `/projects` | 创建项目 |
-| GET | `/projects/{name}/versions` | 获取版本列表 |
-| POST | `/projects/{name}/versions` | 上传新版本 |
-| GET | `/projects/{name}/versions/{ver}/download` | 下载文件 |
-| GET | `/projects/{name}/logs` | 审计日志 |
-| POST | `/projects/{name}/members` | 添加成员（Owner） |
-| DELETE | `/projects/{name}/members/{user}` | 移除成员（Owner） |
+| 方法   | 路径                                         | 说明                     |
+| ------ | -------------------------------------------- | ------------------------ |
+| GET    | `/health`                                  | 服务健康检查（无需认证） |
+| POST   | `/auth/register`                           | 注册                     |
+| POST   | `/auth/login`                              | 登录，返回 JWT           |
+| GET    | `/projects`                                | 获取项目列表             |
+| POST   | `/projects`                                | 创建项目                 |
+| GET    | `/projects/{name}/versions`                | 获取版本列表             |
+| POST   | `/projects/{name}/versions`                | 上传新版本               |
+| GET    | `/projects/{name}/versions/{ver}/download` | 下载文件                 |
+| GET    | `/projects/{name}/logs`                    | 审计日志                 |
+| POST   | `/projects/{name}/members`                 | 添加成员（Owner）        |
+| DELETE | `/projects/{name}/members/{user}`          | 移除成员（Owner）        |
 
 ---
 
@@ -194,15 +200,16 @@ python run_services.py
 配置文件查找顺序（先找到先用）：
 
 **后端**：
+
 1. 环境变量 `MY_LIBRARY_CONFIG_PATH` 指向的文件
 2. 容器内 `/config/config.json`（volume 挂载）
 3. `backend/config.json`（本地开发）
 
 **前端**：
+
 1. 环境变量 `MY_LIBRARY_FRONTEND_CONFIG_PATH` 指向的文件
 2. 容器内 `/config/config.json`（volume 挂载）
 3. `frontend/config.json`（本地开发）
-
 
 ## 构建镜像
 
@@ -281,4 +288,4 @@ ls ./docker/data
 
 - 仓库中原有的 `Dockerfile.backend` 和 `Dockerfile.frontend` 仍然保留
 - 当前推荐使用新的单镜像 `Dockerfile`
-- 当前推荐的镜像名为 `my_library`
+- 当前推荐的镜像名为 `my_librarygit `
