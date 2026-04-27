@@ -52,7 +52,11 @@ async def projects_page() -> None:
                     name_in.set_value("")
                     await refresh()
                 else:
-                    create_err.set_text(resp.json().get("detail", "Failed to create project"))
+                    try:
+                        detail = resp.json().get("detail", "Failed to create project")
+                    except Exception:
+                        detail = f"Failed to create project (HTTP {resp.status_code})"
+                    create_err.set_text(detail)
 
             create_btn.on("click", do_create)
 

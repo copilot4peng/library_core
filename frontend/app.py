@@ -19,6 +19,7 @@ from nicegui import ui
 from frontend.config import CONFIG
 
 # Register all pages (importing the modules triggers the @ui.page decorators)
+import frontend.pages.server_select    # noqa: F401, E402
 import frontend.pages.root             # noqa: F401, E402
 import frontend.pages.login            # noqa: F401, E402
 import frontend.pages.register         # noqa: F401, E402
@@ -30,7 +31,7 @@ if __name__ in {"__main__", "__mp_main__"}:
         host=CONFIG.get("FRONTEND_HOST", "0.0.0.0"),
         port=int(CONFIG.get("FRONTEND_PORT", 8080)),
         title="MyBagHub",
-        storage_secret=CONFIG.get("JWT_SECRET", "nicegui-fallback-secret"),
+        storage_secret=CONFIG.get("STORAGE_SECRET", "nicegui-fallback-secret"),
         show=False,
         reload=False,
     )

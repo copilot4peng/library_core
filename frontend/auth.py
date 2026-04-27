@@ -22,9 +22,26 @@ def is_authenticated() -> bool:
     return bool(get_token())
 
 
+def get_server_url() -> Optional[str]:
+    """Return the backend URL chosen by the user on the server-selection page."""
+    return app.storage.user.get("server_url")
+
+
+def has_server() -> bool:
+    """Return True when the user has selected and verified a backend server."""
+    return bool(get_server_url())
+
+
 def logout() -> None:
     app.storage.user.clear()
-    ui.navigate.to("/login")
+    ui.navigate.to("/server")
 
 
-__all__ = ["get_token", "get_username", "is_authenticated", "logout"]
+__all__ = [
+    "get_token",
+    "get_username",
+    "is_authenticated",
+    "get_server_url",
+    "has_server",
+    "logout",
+]

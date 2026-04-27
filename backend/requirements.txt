@@ -1,0 +1,19 @@
+# ── Direct dependencies ──────────────────────────────────────────────────────
+# Pin fastapi/starlette/pydantic exactly to eliminate pip resolver backtracking.
+# Other transitive deps are left flexible (no backtracking risk).
+fastapi==0.136.0
+uvicorn[standard]==0.45.0
+python-multipart==0.0.26
+python-jose==3.5.0
+bcrypt==5.0.0
+portalocker==3.2.0
+httpx==0.28.1
+
+# ── Pinned transitive dependencies (backtracking culprits only) ───────────────
+starlette==1.0.0
+pydantic==2.13.3
+pydantic-core==2.46.3
+annotated-types==0.7.0
+annotated-doc==0.0.4
+typing-extensions==4.15.0
+typing-inspection==0.4.2

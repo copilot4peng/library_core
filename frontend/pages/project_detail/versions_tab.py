@@ -126,7 +126,10 @@ async def render_versions_tab(project_name: str) -> None:
                 about_in.set_value("")
                 await refresh_versions()
             else:
-                detail = resp.json().get("detail", "Upload failed")
+                try:
+                    detail = resp.json().get("detail", "Upload failed")
+                except Exception:
+                    detail = f"Upload failed (HTTP {resp.status_code})"
                 upload_msg.set_text(detail)
                 upload_msg.classes(remove="text-blue-500 text-green-500", add="text-red-500")
 

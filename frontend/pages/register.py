@@ -7,7 +7,7 @@ import httpx
 from nicegui import ui
 
 from frontend.api import api
-from frontend.auth import is_authenticated
+from frontend.auth import has_server, is_authenticated
 
 # ── Design tokens ──────────────────────────────────────────────────────────────
 _CARD = "w-96 shadow-xl rounded-2xl p-8 bg-white ring-1 ring-gray-100"
@@ -18,6 +18,9 @@ _ERR = "text-red-500 text-sm min-h-4"
 
 @ui.page("/register")
 async def register_page() -> None:
+    if not has_server():
+        ui.navigate.to("/server")
+        return
     if is_authenticated():
         ui.navigate.to("/projects")
         return
@@ -63,7 +66,11 @@ async def register_page() -> None:
                 ui.notify("Registration successful — please sign in", type="positive")
                 ui.navigate.to("/login")
             else:
-                error_lbl.set_text(resp.json().get("detail", "Registration failed"))
+                try:
+                    detail = resp.json().get("detail", "Registration failed")
+                except Exception:
+                    detail = f"Registration failed (HTTP {resp.status_code})"
+                error_lbl.set_text(detail)
 
         ui.button("Create Account", on_click=do_register).classes(_BTN_PRIMARY)
 

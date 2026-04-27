@@ -17,15 +17,13 @@ DEFAULT_CONFIG: dict = {
     "JWT_EXPIRE_HOURS": 24,
     "BACKEND_HOST": "0.0.0.0",
     "BACKEND_PORT": 8000,
-    "FRONTEND_HOST": "0.0.0.0",
-    "FRONTEND_PORT": 8080,
-    "BACKEND_URL": "http://localhost:8000",
     "LOG_LEVEL": "INFO",
 }
 
 
 def _resolve_candidates(config_path: str | None) -> list[Path]:
     project_root = Path(__file__).parent.parent
+    backend_dir = Path(__file__).parent
     candidates: list[Path] = []
 
     env_path = os.getenv("MY_LIBRARY_CONFIG_PATH")
@@ -39,7 +37,8 @@ def _resolve_candidates(config_path: str | None) -> list[Path]:
         candidates.append(requested)
     else:
         candidates.append(Path("/config/config.json"))
-        candidates.append(project_root / "config.json")
+        candidates.append(backend_dir / "config.json")  # backend-local config for dev
+        candidates.append(project_root / "config.json")  # legacy root config
 
     unique_candidates: list[Path] = []
     seen: set[Path] = set()

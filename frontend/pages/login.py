@@ -7,7 +7,7 @@ import httpx
 from nicegui import app, ui
 
 from frontend.api import api
-from frontend.auth import is_authenticated
+from frontend.auth import has_server, is_authenticated
 
 # ── Design tokens ──────────────────────────────────────────────────────────────
 _CARD = "w-96 shadow-xl rounded-2xl p-8 bg-white ring-1 ring-gray-100"
@@ -18,6 +18,9 @@ _ERR = "text-red-500 text-sm min-h-4"
 
 @ui.page("/login")
 async def login_page() -> None:
+    if not has_server():
+        ui.navigate.to("/server")
+        return
     if is_authenticated():
         ui.navigate.to("/projects")
         return
@@ -49,7 +52,7 @@ async def login_page() -> None:
             try:
                 resp = await api("POST", "/auth/login", json={"username": u, "password": p})
             except httpx.RequestError:
-                error_lbl.set_text("Cannot reach the backend — check BACKEND_URL in config.json")
+                error_lbl.set_text("Cannot reach the backend — try reconnecting on the server page")
                 return
 
             if resp.status_code == 200:
@@ -58,7 +61,11 @@ async def login_page() -> None:
                 app.storage.user["username"] = u
                 ui.navigate.to("/projects")
             else:
-                error_lbl.set_text(resp.json().get("detail", "Login failed"))
+                try:
+                    detail = resp.json().get("detail", "Login failed")
+                except Exception:
+                    detail = f"Login failed (HTTP {resp.status_code})"
+                error_lbl.set_text(detail)
 
         ui.button("Sign in", on_click=do_login).classes(_BTN_PRIMARY)
 
@@ -67,3 +74,7 @@ async def login_page() -> None:
         with ui.row().classes("w-full justify-center gap-1 text-sm"):
             ui.label("No account?").classes("text-gray-500")
             ui.link("Create one", "/register").classes("text-blue-500 font-medium")
+
+        with ui.row().classes("w-full justify-center gap-1 text-sm mt-1"):
+            ui.label("Wrong server?").classes("text-gray-500")
+            ui.link("Change server", "/server").classes("text-blue-500 font-medium")

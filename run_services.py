@@ -5,6 +5,8 @@ import signal
 import subprocess
 import sys
 import time
+import urllib.request
+import urllib.error
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -13,6 +15,25 @@ COMMANDS = {
     "backend": [PYTHON, "-m", "backend.main"],
     "frontend": [PYTHON, "-m", "frontend.app"],
 }
+
+_BACKEND_HEALTH_URL = "http://127.0.0.1:8000/health"
+_HEALTH_TIMEOUT = 30  # seconds to wait for backend before giving up
+
+
+def _wait_for_backend(proc: subprocess.Popen, timeout: int = _HEALTH_TIMEOUT) -> bool:
+    """Poll /health until the backend responds or the process dies."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if proc.poll() is not None:
+            return False  # backend exited prematurely
+        try:
+            with urllib.request.urlopen(_BACKEND_HEALTH_URL, timeout=1) as resp:
+                if resp.status == 200:
+                    return True
+        except Exception:
+            pass
+        time.sleep(0.3)
+    return False
 
 
 def terminate(processes: dict[str, subprocess.Popen], sig: int) -> None:
@@ -40,10 +61,16 @@ def wait_for_exit(processes: dict[str, subprocess.Popen]) -> int:
 
 
 def main() -> int:
-    processes = {
-        name: subprocess.Popen(command, cwd=ROOT)
-        for name, command in COMMANDS.items()
-    }
+    backend = subprocess.Popen(COMMANDS["backend"], cwd=ROOT)
+    print("Waiting for backend to become healthy…", flush=True)
+    if not _wait_for_backend(backend):
+        print("Backend failed to start. Aborting.", flush=True)
+        backend.kill()
+        return 1
+
+    print("Backend healthy — starting frontend.", flush=True)
+    frontend = subprocess.Popen(COMMANDS["frontend"], cwd=ROOT)
+    processes = {"backend": backend, "frontend": frontend}
 
     def handle_signal(signum, _frame) -> None:
         terminate(processes, signum)
